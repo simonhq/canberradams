@@ -4,7 +4,7 @@
 #
 # written to be run from AppDaemon for a HASS or HASSIO install
 #
-# Written: 13/01/2020
+# Written: 19/01/2020
 # on windows use py -m pip install beautifulsoup4
 ############################################################
 
@@ -37,6 +37,7 @@ class Get_ACT_Dams(hass.Hass):
     # the name of the flag in HA (input_boolean.xxx) that will be watched/turned off
     DAM_FLAG = ""
     DAM_SENSOR = ""
+    URL = "https://www.eldersweather.com.au/dam-level/act/"
 
     # run each step against the database
     def initialize(self):
@@ -44,27 +45,36 @@ class Get_ACT_Dams(hass.Hass):
         # get the values from the app.yaml that has the relevant personal settings
         self.DAM_FLAG = globals.get_arg(self.args, "DAM_FLAG")
         self.DAM_SENSOR = globals.get_arg(self.args, "DAM_SENSOR")
-                
-        # listen to HA for the flag to see if it is necessary to run this code against a new database
+
+        # create the original sensor
+        self.load(self.DAM_SENSOR)
+
+        # listen to HA for the flag to update the sensor
         self.listen_state(self.main, self.DAM_FLAG, new="on")
 
     # run the app
     def main(self, entity, attribute, old, new, kwargs):
-        """ parse the elders weather ACT dam level website
+        """ create the sensor and turn off the flag
             
         """
+        # create the sensor with the dam information 
+        self.load(self.DAM_SENSOR)
         
+        # turn off the flag in HA to show completion
+        self.turn_off(self.DAM_FLAG)
+
+    def load(self, dam_sensor):
+        """ parse the elders weather ACT dam level website
+        """
+
         #connect to the website and scrape the dam levels for the ACT
-        url = 'https://www.eldersweather.com.au/dam-level/act/'
+        url = self.URL
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
         all_td = soup.findAll('td')
 
         # create the sensor with the dam information 
-        self.create_sensor(self.DAM_SENSOR, all_td)
-        
-        # turn off the flag in HA to show completion
-        self.turn_off(self.DAM_FLAG)
+        self.create_sensor(dam_sensor, all_td)
 
 
     def create_sensor(self, dam_sensor, dam_levels):
@@ -83,7 +93,7 @@ class Get_ACT_Dams(hass.Hass):
         bendora_per = self.get_val(dam_levels, 14)
 
         
-        self.set_state(dam_sensor, state=catch_per, replace=True, attributes= {"Catchment Capacity": catch_cap, "Googong": googong_per, "Cotter": cotter_per, "Corin": corin_per, "Bendora": bendora_per}) 
+        self.set_state(dam_sensor, state=catch_per, replace=True, attributes= {"icon": "mdi:cup-water", "friendly_name": "ACT Dam Levels", "Catchment Capacity": catch_cap, "Googong": googong_per, "Cotter": cotter_per, "Corin": corin_per, "Bendora": bendora_per}) 
 
     def get_val(self, dam_levels, array_pos):
         """ pass the array of values and the position to return the string 
