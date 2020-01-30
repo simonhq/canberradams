@@ -1,10 +1,10 @@
 ############################################################
 #
-# This class aims to get the Canberra ACT dam levels from the elders weather website 
+# This class aims to get the Canberra ACT dam levels from Icon Water
 #
 # written to be run from AppDaemon for a HASS or HASSIO install
 #
-# Written: 19/01/2020
+# Written: 30/01/2020
 # on windows use py -m pip install beautifulsoup4
 ############################################################
 
@@ -37,7 +37,7 @@ class Get_ACT_Dams(hass.Hass):
     # the name of the flag in HA (input_boolean.xxx) that will be watched/turned off
     DAM_FLAG = ""
     DAM_SENSOR = ""
-    URL = "https://www.eldersweather.com.au/dam-level/act/"
+    URL = "https://www.iconwater.com.au/water-education/water-and-sewerage-system/dams/water-storage-levels.aspx"
 
     # run each step against the database
     def initialize(self):
@@ -71,11 +71,10 @@ class Get_ACT_Dams(hass.Hass):
         url = self.URL
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
-        all_td = soup.findAll('td')
+        all_tags = soup.findAll('span')
 
         # create the sensor with the dam information 
-        self.create_sensor(dam_sensor, all_td)
-
+        self.create_sensor(dam_sensor, all_tags)
 
     def create_sensor(self, dam_sensor, dam_levels):
         """ pass the raw html string and input text to add it to 
@@ -85,15 +84,9 @@ class Get_ACT_Dams(hass.Hass):
         """
 
         # percentage in the dams
-        catch_cap = self.get_val(dam_levels, 1)
         catch_per = self.get_val(dam_levels, 2)
-        googong_per = self.get_val(dam_levels, 5)
-        cotter_per = self.get_val(dam_levels, 8)
-        corin_per = self.get_val(dam_levels, 11)
-        bendora_per = self.get_val(dam_levels, 14)
-
         
-        self.set_state(dam_sensor, state=catch_per, replace=True, attributes= {"icon": "mdi:cup-water", "friendly_name": "ACT Dam Levels", "Catchment Capacity": catch_cap, "Googong": googong_per, "Cotter": cotter_per, "Corin": corin_per, "Bendora": bendora_per}) 
+        self.set_state(dam_sensor, state=catch_per, replace=True, attributes= {"icon": "mdi:cup-water", "friendly_name": "ACT Dam Levels"})
 
     def get_val(self, dam_levels, array_pos):
         """ pass the array of values and the position to return the string 
