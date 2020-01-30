@@ -14,7 +14,7 @@ local `apps` directory, then add the configuration to enable the `canberradams` 
 
 ## How it works
 
-The [Elders Weather](https://www.eldersweather.com.au/dam-level/act/) site provides this information, this just scrapes
+The [Icon Water](https://www.iconwater.com.au/water-education/water-and-sewerage-system/dams/water-storage-levels.aspx) site provides this information, this just scrapes
 the page and makes the information available as a sensor in HA.
 
 As this is non time critical sensor, it does not get the information on a set time schedule, but watches a input_boolean that you 
