@@ -64,7 +64,7 @@ class Get_ACT_Dams(hass.Hass):
         self.turn_off(self.DAM_FLAG)
 
     def load(self, dam_sensor):
-        """ parse the elders weather ACT dam level website
+        """ parse the ICON Water ACT dam level website
         """
 
         #connect to the website and scrape the dam levels for the ACT
