@@ -12,6 +12,8 @@ and download updates.
 Alternatively, you can download the `canberradams` directory from inside the `apps` directory here to your
 local `apps` directory, then add the configuration to enable the `canberradams` module.
 
+You will also need to install Beautiful Soup / bs4 and then copy the bs4 directory into the apps directory in Appdaemon.
+
 ## How it works
 
 The [Icon Water](https://www.iconwater.com.au/water-education/water-and-sewerage-system/dams/water-storage-levels.aspx) site provides this information, this just scrapes
