@@ -5,7 +5,8 @@
 # written to be run from AppDaemon for a HASS or HASSIO install
 #
 # Written: 30/01/2020
-# on windows use py -m pip install beautifulsoup4
+# updated: 03/05/2020
+# 
 ############################################################
 
 ############################################################
@@ -17,18 +18,17 @@
 #   module: canberradams
 #   class: Get_ACT_Dams
 #   DAM_FLAG: "input_boolean.check_dams"
-#   DAM_SENSOR: "sensor.act_dam_levels"
 #   global_dependencies:
 #     - globals
 #     - secrets
 #
 ############################################################
 
-# import the function libraries for beautiful soup
+# import the function libraries
 import requests
-import urllib.request
-import time
-from bs4 import BeautifulSoup
+import datetime
+import json
+import xmltodict
 import appdaemon.plugins.hass.hassapi as hass
 import globals
 
@@ -36,18 +36,22 @@ class Get_ACT_Dams(hass.Hass):
 
     # the name of the flag in HA (input_boolean.xxx) that will be watched/turned off
     DAM_FLAG = ""
-    DAM_SENSOR = ""
-    URL = "https://www.iconwater.com.au/water-education/water-and-sewerage-system/dams/water-storage-levels.aspx"
+    URL = "https://www.iconwater.com.au/layouts/ACTEW/charts/GetCurrentDamLevelsExtended.aspx"
+
+    up_sensor = "sensor.act_dam_last_updated"
+    payload = {}
+    headers = {
+        'User-Agent': 'Mozilla/5.0'
+    }
 
     # run each step against the database
     def initialize(self):
 
         # get the values from the app.yaml that has the relevant personal settings
         self.DAM_FLAG = globals.get_arg(self.args, "DAM_FLAG")
-        self.DAM_SENSOR = globals.get_arg(self.args, "DAM_SENSOR")
 
         # create the original sensor
-        self.load(self.DAM_SENSOR)
+        self.load()
 
         # listen to HA for the flag to update the sensor
         self.listen_state(self.main, self.DAM_FLAG, new="on")
@@ -58,42 +62,44 @@ class Get_ACT_Dams(hass.Hass):
             
         """
         # create the sensor with the dam information 
-        self.load(self.DAM_SENSOR)
+        self.load()
         
         # turn off the flag in HA to show completion
         self.turn_off(self.DAM_FLAG)
 
-    def load(self, dam_sensor):
+    def load(self):
         """ parse the ICON Water ACT dam level website
         """
 
         #connect to the website and scrape the dam levels for the ACT
         url = self.URL
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        all_tags = soup.findAll('span')
-
-        # create the sensor with the dam information 
-        self.create_sensor(dam_sensor, all_tags)
-
-    def create_sensor(self, dam_sensor, dam_levels):
-        """ pass the raw html string and input text to add it to 
-        :param dam_sensor: the name of the sensor to create in home assistant
-        :param dam_levels: the array of dam levels from the website
-        :return: -
-        """
-
-        # percentage in the dams
-        catch_per = self.get_val(dam_levels, 2)
+        response = requests.request("GET", url, headers=self.headers, data = self.payload)
         
-        self.set_state(dam_sensor, state=catch_per, replace=True, attributes= {"icon": "mdi:cup-water", "friendly_name": "ACT Dam Levels"})
+        #create a sensor to keep track last time this was run
+        tim = datetime.datetime.now()
+        date_time = tim.strftime("%d/%m/%Y, %H:%M:%S")
+        self.set_state(self.up_sensor, state=date_time, replace=True, attributes= {"icon": "mdi:timeline-clock-outline", "friendly_name": "ACT Dam Levels Data last sourced"})
+        
+        page = xmltodict.parse(response.text)
+        dtags = json.loads(json.dumps(page))
+        
+        #get the second series - with percentages and remaining volumes
+        dams = dtags['data']['series'][1]
+        #self.log(readings)
+        #get the values for each dam
+        for x in range(5):
+            #dam name
+            dname = dams['reading'][x]['dam']
+            #dam percentage full
+            dper = dams['reading'][x]['percentageFull']
+            #dam remaining capacity
+            drcap = dams['reading'][x]['amount']
+            #total capacity is rcap/(100-dper)*100
+            dcap = float(drcap) / (100 - float(dper)) * 100
+            #current available
+            davail = dcap - float(drcap)
+            #sensor name
+            sensor_name = 'sensor.act_dam_' + dname.replace(" ","_")
 
-    def get_val(self, dam_levels, array_pos):
-        """ pass the array of values and the position to return the string 
-        :param dam_levels: the array of dam levels from the website
-        :param array_pos: the position in the array to return
-        :return: string from the array
-        """
-        tagged_str = dam_levels[array_pos]
-        soupa = BeautifulSoup(str(tagged_str), "html.parser")
-        return soupa.get_text()
+            #create the sensors for each of the dams and the combined volumes
+            self.set_state(sensor_name, state=dper, replace=True, attributes= {"icon": "mdi:cup-water", "friendly_name": "ACT Dam Level - " + dname, "Current Available": "{:12.2f}".format(davail), "Total Capacity": "{:12.2f}".format(dcap) })

@@ -1,7 +1,7 @@
 # Canberra Dams
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 
-_Creates a sensor for Home Assistant with the ACT Dam level information_
+_Creates sensors for Home Assistant with the ACT Dam level information_
 
 ## Installation
 
@@ -16,8 +16,8 @@ You will also need to install Beautiful Soup / bs4 and then copy the bs4 directo
 
 ## How it works
 
-The [Icon Water](https://www.iconwater.com.au/water-education/water-and-sewerage-system/dams/water-storage-levels.aspx) site provides this information, this just scrapes
-the page and makes the information available as a sensor in HA.
+The [Icon Water](https://www.iconwater.com.au/layouts/ACTEW/charts/GetCurrentDamLevelsExtended.aspx) site provides this information, this just scrapes
+the page and makes the information available as sensors in HA.
 
 As this is non time critical sensor, it does not get the information on a set time schedule, but watches a input_boolean that you 
 specify for when to update the sensor. You can obviously automate when you want that input_boolean to turn on.
@@ -28,6 +28,19 @@ You will need to create an input_boolean entity to watch for when to update the 
 `input_boolean` is turned on, whether manually or by another automation you
 create, the scraping process will be run to create/update the sensor.
 
+## AppDaemon Libraries
+
+Please add the following packages to your appdaemon configuration
+
+``` yaml
+system_packages: []
+python_packages:
+  - xmltodict
+init_commands: []
+```
+
+_Note: bs4 (beautiful soup) is no longer required for this app_
+
 ## App configuration
 
 ```yaml
@@ -35,7 +48,6 @@ canberra_dams:
   module: canberradams
   class: Get_ACT_Dams
   DAM_FLAG: "input_boolean.check_dams"
-  DAM_SENSOR: "sensor.act_dam_levels"
 ```
 
 key | optional | type | default | description
@@ -43,7 +55,19 @@ key | optional | type | default | description
 `module` | False | string | | `canberradams`
 `class` | False | string | | `Get_ACT_Dams`
 `DAM_FLAG` | False | string || The name of the flag in HA for triggering this sensor update - e.g. input_boolean.check_dams 
-`DAM_SENSOR` | False | string || The name of the sensor to create/update
+
+## Sensors Created
+
+This version will create 6 sensors
+
+
+* sensor.act_dam_last_updated
+* sensor.act_dam_bendora_dam
+* sensor.act_dam_combined_volume
+* sensor.act_dam_corin_dam
+* sensor.act_dam_cotter_dam
+* sensor.act_dam_googong_dam
+
 
 ## Issues/Feature Requests
 
