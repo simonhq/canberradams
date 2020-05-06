@@ -18,9 +18,6 @@
 #   module: canberradams
 #   class: Get_ACT_Dams
 #   DAM_FLAG: "input_boolean.check_dams"
-#   global_dependencies:
-#     - globals
-#     - secrets
 #
 ############################################################
 
@@ -30,7 +27,6 @@ import datetime
 import json
 import xmltodict
 import appdaemon.plugins.hass.hassapi as hass
-import globals
 
 class Get_ACT_Dams(hass.Hass):
 
@@ -48,7 +44,7 @@ class Get_ACT_Dams(hass.Hass):
     def initialize(self):
 
         # get the values from the app.yaml that has the relevant personal settings
-        self.DAM_FLAG = globals.get_arg(self.args, "DAM_FLAG")
+        self.DAM_FLAG = self.args["DAM_FLAG"]
 
         # create the original sensor
         self.load()
