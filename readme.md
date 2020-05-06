@@ -30,7 +30,7 @@ create, the scraping process will be run to create/update the sensor.
 
 ## AppDaemon Libraries
 
-Please add the following packages to your appdaemon configuration
+Please add the following packages to your appdaemon 4 configuration on the supervisor page of the add-on.
 
 ``` yaml
 system_packages: []
@@ -42,6 +42,8 @@ init_commands: []
 _Note: bs4 (beautiful soup) is no longer required for this app_
 
 ## App configuration
+
+In the apps.yaml file in the appdaemon/apps directory - 
 
 ```yaml
 canberra_dams:
