@@ -3,6 +3,12 @@
 
 _Creates sensors for Home Assistant with the ACT Dam level information_
 
+## Lovelace Example
+
+![Example of the entities in Lovelace](https://github.com/simonhq/canberradams/blob/master/canberra_dams_entities.PNG)
+
+![An Entity has capacity and current volume](https://github.com/simonhq/canberradams/blob/master/canberra_dams_entity.PNG)
+
 ## Installation
 
 This app is best installed using
@@ -62,14 +68,12 @@ key | optional | type | default | description
 
 This version will create 6 sensors
 
-
 * sensor.act_dam_last_updated
 * sensor.act_dam_bendora_dam
 * sensor.act_dam_combined_volume
 * sensor.act_dam_corin_dam
 * sensor.act_dam_cotter_dam
 * sensor.act_dam_googong_dam
-
 
 ## Issues/Feature Requests
 

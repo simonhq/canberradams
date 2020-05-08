@@ -1,4 +1,5 @@
 {
     "name": "canberradams",
-    "country": "AU"
+    "country": "AU",
+    "render_readme": "True"
 }
