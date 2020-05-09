@@ -98,4 +98,4 @@ class Get_ACT_Dams(hass.Hass):
             sensor_name = 'sensor.act_dam_' + dname.replace(" ","_")
 
             #create the sensors for each of the dams and the combined volumes
-            self.set_state(sensor_name, state=dper, replace=True, attributes= {"icon": "mdi:cup-water", "friendly_name": "ACT Dam Level - " + dname, "Current Available": "{:12.2f}".format(davail), "Total Capacity": "{:12.2f}".format(dcap) })
+            self.set_state(sensor_name, state=dper, replace=True, attributes= {"icon": "mdi:cup-water", "friendly_name": "ACT Dam Level - " + dname, "unit_of_measurement": "%", "Current Available": "{:12.2f}".format(davail), "Total Capacity": "{:12.2f}".format(dcap) })
