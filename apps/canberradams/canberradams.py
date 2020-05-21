@@ -54,7 +54,7 @@ class Get_ACT_Dams(hass.Hass):
 
         # set to run each morning at 5.23am
         runtime = datetime.time(5,23,0)
-        self.run_daily(self.load, runtime)
+        self.run_daily(self.daily_load, runtime)
 
     # run the app
     def main(self, entity, attribute, old, new, kwargs):
@@ -66,6 +66,12 @@ class Get_ACT_Dams(hass.Hass):
         
         # turn off the flag in HA to show completion
         self.turn_off(self.DAM_FLAG)
+
+    def daily_load(self, kwargs):
+        """ A loader function for the scheduler
+        """
+        # create the sensor with the dam information
+        self.load()
 
     def load(self):
         """ parse the ICON Water ACT dam level website
