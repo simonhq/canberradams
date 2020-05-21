@@ -1,3 +1,5 @@
+## NOTE - added daily scheduled run
+
 # Canberra Dams
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 
@@ -11,25 +13,19 @@ _Creates sensors for Home Assistant with the ACT Dam level information_
 
 ## Installation
 
-This app is best installed using
-[HACS](https://github.com/custom-components/hacs), so that you can easily track
-and download updates.
+This app is best installed using [HACS](https://github.com/custom-components/hacs), so that you can easily track and download updates.
 
-Alternatively, you can download the `canberradams` directory from inside the `apps` directory here to your
-local `apps` directory, then add the configuration to enable the `canberradams` module.
+Alternatively, you can download the `canberradams` directory from inside the `apps` directory here to your local `apps` directory, then add the configuration to enable the `canberradams` module.
 
 ## How it works
 
-The [Icon Water](https://www.iconwater.com.au/layouts/ACTEW/charts/GetCurrentDamLevelsExtended.aspx) site provides this information, this just scrapes
-the page and makes the information available as sensors in HA.
+The [Icon Water](https://www.iconwater.com.au/layouts/ACTEW/charts/GetCurrentDamLevelsExtended.aspx) site provides this information, this just scrapes the page and makes the information available as sensors in HA.
 
-As this is non time critical sensor, it does not get the information on a set time schedule, but watches a input_boolean that you 
-specify for when to update the sensor. You can obviously automate when you want that input_boolean to turn on.
+As this is non time critical sensor, it only gets the information on a set time schedule, once per day at 5.23am, but it also watches an `input_boolean` that you specify for when to update the sensor. You can obviously automate when you want that input_boolean to turn on.
 
-### To Run
+### To Run outside of schedule
 
-You will need to create an input_boolean entity to watch for when to update the sensor. When this
-`input_boolean` is turned on, whether manually or by another automation you
+You will need to create an input_boolean entity to watch for when to update the sensor. When this `input_boolean` is turned on, whether manually or by another automation you
 create, the scraping process will be run to create/update the sensor.
 
 ## AppDaemon Libraries
