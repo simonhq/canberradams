@@ -89,6 +89,12 @@ class Get_ACT_Dams(hass.Hass):
         page = xmltodict.parse(response.text)
         dtags = json.loads(json.dumps(page))
         
+        #get the first series - with total capacity
+        caps = []
+        dams = dtags['data']['series'][0]
+        for x in range(5):
+            caps.append(dams['reading'][x]['amount'])
+
         #get the second series - with percentages and remaining volumes
         dams = dtags['data']['series'][1]
         #self.log(readings)
@@ -100,8 +106,9 @@ class Get_ACT_Dams(hass.Hass):
             dper = dams['reading'][x]['percentageFull']
             #dam remaining capacity
             drcap = dams['reading'][x]['amount']
-            #total capacity is rcap/(100-dper)*100
-            dcap = float(drcap) / (100 - float(dper)) * 100
+            #total capacity is caps[x] (old) rcap/(100-dper)*100
+            #dcap = float(drcap) / (100 - float(dper)) * 100
+            dcap = float(caps[x])
             #current available
             davail = dcap - float(drcap)
             #sensor name
